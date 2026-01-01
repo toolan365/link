@@ -1,0 +1,83 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "format:EMP-{######}",
+ "creation": "2025-12-08 21:22:46.107275",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "employee_name",
+  "employee_title",
+  "image_url",
+  "linkedin_url",
+  "company_profile__id"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Employee name",
+   "length": 400,
+   "not_nullable": 1,
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "employee_title",
+   "fieldtype": "Data",
+   "label": "Employee Title",
+   "length": 400
+  },
+  {
+   "fieldname": "image_url",
+   "fieldtype": "Data",
+   "label": "Image Url",
+   "length": 400
+  },
+  {
+   "fieldname": "linkedin_url",
+   "fieldtype": "Data",
+   "label": "linkedIn Url",
+   "length": 400
+  },
+  {
+   "fieldname": "company_profile__id",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Company profile  id",
+   "options": "Profile",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-09 02:04:04.447812",
+ "modified_by": "Administrator",
+ "module": "Link",
+ "name": "Company Employee",
+ "naming_rule": "Expression",
+ "owner": "sandrat@practical.toys",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "employee_name"
+}

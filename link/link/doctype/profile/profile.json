@@ -1,0 +1,257 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "field:profile_id",
+ "creation": "2025-12-06 02:47:01.581091",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "profile_id",
+  "slogan",
+  "logo_url",
+  "image_url",
+  "organization_type",
+  "company_size",
+  "founded",
+  "city",
+  "about",
+  "headquarters",
+  "province",
+  "country_code",
+  "column_break_ssym",
+  "company_name",
+  "website",
+  "market_segment",
+  "validation_status",
+  "homepage_context",
+  "section_break_kqiq",
+  "specialties",
+  "additional_information",
+  "locations",
+  "description",
+  "linkedin_tab",
+  "linkedin_section",
+  "linkedin_url",
+  "linkedin_company_id",
+  "column_break_qepz",
+  "employees_on_linkedin",
+  "linkedin_followers"
+ ],
+ "fields": [
+  {
+   "fieldname": "profile_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Profile ID",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "company_name",
+   "fieldtype": "Data",
+   "label": "Company Name",
+   "search_index": 1
+  },
+  {
+   "fieldname": "logo_url",
+   "fieldtype": "Data",
+   "label": "Logo Url",
+   "length": 400,
+   "options": "URL"
+  },
+  {
+   "fieldname": "image_url",
+   "fieldtype": "Data",
+   "label": "Image url",
+   "length": 500,
+   "options": "URL"
+  },
+  {
+   "fieldname": "slogan",
+   "fieldtype": "Data",
+   "label": "Slogan"
+  },
+  {
+   "fieldname": "website",
+   "fieldtype": "Data",
+   "label": "Website",
+   "options": "URL"
+  },
+  {
+   "fieldname": "linkedin_url",
+   "fieldtype": "Data",
+   "label": "LinkedIn url"
+  },
+  {
+   "fieldname": "province",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Province",
+   "options": "Province"
+  },
+  {
+   "fieldname": "market_segment",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_standard_filter": 1,
+   "label": "Industry",
+   "options": "Market Segment",
+   "search_index": 1
+  },
+  {
+   "fieldname": "about",
+   "fieldtype": "Text",
+   "label": "About"
+  },
+  {
+   "fieldname": "specialties",
+   "fieldtype": "Long Text",
+   "label": "Specialties"
+  },
+  {
+   "fieldname": "organization_type",
+   "fieldtype": "Link",
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Organization Type",
+   "options": "Organization Type",
+   "search_index": 1
+  },
+  {
+   "fieldname": "company_size",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Company Size",
+   "options": "Company Size"
+  },
+  {
+   "fieldname": "founded",
+   "fieldtype": "Int",
+   "label": "Founded"
+  },
+  {
+   "fieldname": "headquarters",
+   "fieldtype": "Long Text",
+   "label": "Headquarters"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City"
+  },
+  {
+   "fieldname": "country_code",
+   "fieldtype": "Data",
+   "label": "Country Code"
+  },
+  {
+   "fieldname": "locations",
+   "fieldtype": "Long Text",
+   "label": "locations"
+  },
+  {
+   "fieldname": "linkedin_followers",
+   "fieldtype": "Int",
+   "label": "LInkedIn Followers"
+  },
+  {
+   "fieldname": "employees_on_linkedin",
+   "fieldtype": "Int",
+   "label": "Employees on LinkedIn"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Long Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "additional_information",
+   "fieldtype": "Long Text",
+   "label": "Additional Information"
+  },
+  {
+   "fieldname": "linkedin_company_id",
+   "fieldtype": "Int",
+   "label": "LinkedIn Company ID"
+  },
+  {
+   "fieldname": "linkedin_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "linkedin_tab",
+   "fieldtype": "Tab Break",
+   "label": "LinkedIn"
+  },
+  {
+   "fieldname": "column_break_qepz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ssym",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_kqiq",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "validation_status",
+   "fieldtype": "Select",
+   "label": "Validation Status",
+   "options": "Pending\nVerified\nDead"
+  },
+  {
+   "fieldname": "homepage_context",
+   "fieldtype": "Markdown Editor",
+   "label": "Homepage Context"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [
+  {
+   "link_doctype": "Company Employee",
+   "link_fieldname": "company_profile__id"
+  },
+  {
+   "link_doctype": "Company Similar",
+   "link_fieldname": "profile_id"
+  },
+  {
+   "link_doctype": "Company Update",
+   "link_fieldname": "profile_id"
+  }
+ ],
+ "modified": "2025-12-27 23:48:28.137653",
+ "modified_by": "Administrator",
+ "module": "Link",
+ "name": "Profile",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "show_title_field_in_link": 1,
+ "sort_field": "profile_id",
+ "sort_order": "ASC",
+ "states": [],
+ "title_field": "company_name"
+}

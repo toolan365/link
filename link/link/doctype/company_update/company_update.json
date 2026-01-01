@@ -1,0 +1,129 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "field:post_id",
+ "creation": "2025-12-09 22:45:57.359854",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "post_id",
+  "title",
+  "post_date",
+  "likes_count",
+  "column_break_ewat",
+  "profile_id",
+  "post_url",
+  "post_time",
+  "comments_count",
+  "section_break_brag",
+  "images",
+  "post_text",
+  "section_break_oaox",
+  "repost_id"
+ ],
+ "fields": [
+  {
+   "fieldname": "post_id",
+   "fieldtype": "Data",
+   "label": "Post id",
+   "unique": 1
+  },
+  {
+   "fieldname": "likes_count",
+   "fieldtype": "Int",
+   "label": "Likes Count"
+  },
+  {
+   "fieldname": "post_text",
+   "fieldtype": "Text",
+   "label": "Post Text"
+  },
+  {
+   "fieldname": "post_time",
+   "fieldtype": "Data",
+   "label": "Post Time"
+  },
+  {
+   "columns": 2,
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "length": 300,
+   "search_index": 1
+  },
+  {
+   "fieldname": "images",
+   "fieldtype": "Text",
+   "label": "images"
+  },
+  {
+   "fieldname": "post_url",
+   "fieldtype": "Data",
+   "label": "Post url",
+   "length": 500
+  },
+  {
+   "fieldname": "post_date",
+   "fieldtype": "Data",
+   "label": "Post Date",
+   "length": 27
+  },
+  {
+   "fieldname": "comments_count",
+   "fieldtype": "Int",
+   "label": "Comments count"
+  },
+  {
+   "fieldname": "profile_id",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Profile"
+  },
+  {
+   "fieldname": "repost_id",
+   "fieldtype": "Int",
+   "label": "Repost id"
+  },
+  {
+   "fieldname": "column_break_ewat",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_brag",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_oaox",
+   "fieldtype": "Section Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-10 19:21:14.515282",
+ "modified_by": "Administrator",
+ "module": "Link",
+ "name": "Company Update",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
