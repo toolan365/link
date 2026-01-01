@@ -11,7 +11,11 @@ def reconcile_profiles(ctx):
     Reconciles Profile records with GCS validation results.
     """
     # Initialize Frappe site if running from bench context
-    site = ctx.obj['sites'][0]
+    if hasattr(ctx.obj, 'sites'):
+        site = ctx.obj.sites[0]
+    else:
+        site = ctx.obj['sites'][0]
+        
     frappe.init(site=site)
     frappe.connect()
 
@@ -24,14 +28,17 @@ def reconcile_logic():
     click.echo("Starting reconciliation process...")
     
     # Configuration
+    PROJECT_ID = "link-za"
     BUCKET_NAME = "outreach-za-datalake"
-    PREFIX = "data_lake/"
+    # User clarification: Bucket has no subdirectory, structure is bucket/profile_id/metadata.json
+    PREFIX = "" 
     
     # Initialize GCS Client
     try:
-        storage_client = storage.Client()
+        storage_client = storage.Client(project=PROJECT_ID)
         bucket = storage_client.bucket(BUCKET_NAME)
-        blobs = bucket.list_blobs(prefix=PREFIX)
+        # Note: list_blobs with prefix="" lists everything
+        iterator = bucket.list_blobs(prefix=PREFIX)
     except Exception as e:
         click.echo(f"Error accessing GCS: {e}")
         return
@@ -39,29 +46,30 @@ def reconcile_logic():
     count = 0
     updated_count = 0
     
-    # Iterate through GCS folders (implied by processing blobs)
-    # Since list_blobs is flat, we need to group by folder or process metadata.json files directly
-    
-    # Strategy: Iterate only metadata.json files to identify records
-    iterator = bucket.list_blobs(prefix=PREFIX)
-    
-    # We will track processed profiles to avoid duplicates if needed, 
-    # but GCS structure implies one metadata.json per profile folder.
-    
+    click.echo(f"Scanning bucket {BUCKET_NAME}...")
+
+    # Iterate through GCS blobs
     for blob in iterator:
+        # We only care about metadata.json files to identify a profile folder
         if not blob.name.endswith("/metadata.json"):
             continue
             
-        # Extract profile_id from path: data_lake/[profile_id]/metadata.json
+        # Expected structure: [profile_id]/metadata.json
         parts = blob.name.split('/')
-        if len(parts) < 3:
+        
+        # If structure was data_lake/id/meta, len was 3. 
+        # Now if it is id/meta, len is 2.
+        if len(parts) < 2: 
             continue
             
-        profile_id = parts[1] # "data_lake" is 0
+        # profile_id is the folder name, which is the second to last part
+        # e.g. "my-profile-id/metadata.json" -> parts[0] is id
+        # This works even if there is a prefix, parts[-2] is always the parent folder
+        profile_id = parts[-2]
         
         # Check if Profile exists in Frappe
         if not frappe.db.exists("Profile", profile_id):
-            click.echo(f"Skipping {profile_id}: Not found in Frappe.")
+            # click.echo(f"Skipping {profile_id}: Not found in Frappe.")
             continue
             
         process_profile(bucket, profile_id, blob)
@@ -93,7 +101,8 @@ def process_profile(bucket, profile_id, metadata_blob):
                 dirty = True
             
             # Read content.md
-            content_blob_path = f"data_lake/{profile_id}/content.md"
+            # Structure: [profile_id]/content.md
+            content_blob_path = f"{profile_id}/content.md"
             content_blob = bucket.blob(content_blob_path)
             
             if content_blob.exists():
