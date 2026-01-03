@@ -25,6 +25,8 @@
   "market_segment",
   "validation_status",
   "homepage_context",
+  "web_enriched",
+  "web_enriched_date",
   "section_break_kqiq",
   "specialties",
   "additional_information",
@@ -209,6 +211,17 @@
    "fieldname": "homepage_context",
    "fieldtype": "Markdown Editor",
    "label": "Homepage Context"
+  },
+  {
+   "default": "0",
+   "fieldname": "web_enriched",
+   "fieldtype": "Check",
+   "label": "Web Enriched"
+  },
+  {
+   "fieldname": "web_enriched_date",
+   "fieldtype": "Date",
+   "label": "Web Enriched Date"
   }
  ],
  "grid_page_length": 50,
@@ -227,7 +240,7 @@
    "link_fieldname": "profile_id"
   }
  ],
- "modified": "2025-12-27 23:48:28.137653",
+ "modified": "2026-01-03 03:00:39.559329",
  "modified_by": "Administrator",
  "module": "Link",
  "name": "Profile",
