@@ -9,10 +9,8 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 from typing import Set, Dict
 from datetime import datetime
-
 # Logging setup
 logger = logging.getLogger(__name__)
-
 @click.command("enrich-profiles")
 @click.pass_context
 def enrich_profiles(ctx):
@@ -26,12 +24,10 @@ def enrich_profiles(ctx):
         
     frappe.init(site=site)
     frappe.connect()
-
     try:
         enrichment_logic()
     finally:
         frappe.destroy()
-
 def enrichment_logic():
     click.echo("Starting profile enrichment...")
     
@@ -46,7 +42,6 @@ def enrichment_logic():
     except Exception as e:
         click.echo(f"Error accessing GCS: {e}")
         return
-
     # Fetch verified profiles that are either not enriched or enriched > 7 days ago (stale)
     # User specified "web_enriched_date > 7 days ago", interpreted as "Age > 7 days" i.e. Date < (Now - 7 days)
     # Also web_enriched_date is a Date field.
@@ -60,9 +55,7 @@ def enrichment_logic():
             OR web_enriched_date < DATE_SUB(CURDATE(), INTERVAL 7 DAY)
         )
     """, as_dict=True)
-
     click.echo(f"Found {len(profiles)} profiles to enrich.")
-
     for p in profiles:
         profile_id = p.profile_id
         website = p.website
@@ -70,7 +63,6 @@ def enrichment_logic():
         if not website:
             click.echo(f"Skipping {profile_id}: No website.")
             continue
-
         try:
             click.echo(f"Processing {profile_id} ({website})...")
             # Increased pages to 7 as requested
@@ -86,9 +78,7 @@ def enrichment_logic():
         except Exception as e:
             click.echo(f"Failed to enrich {profile_id}: {e}")
             frappe.db.rollback()
-
     click.echo("Enrichment complete.")
-
 class GCSSiteHarvester:
     def __init__(self, company_id: str, base_url: str, bucket):
         self.company_id = company_id
@@ -106,7 +96,6 @@ class GCSSiteHarvester:
             "phones": set(),
             "socials": set()
         }
-
     def is_internal(self, url: str) -> bool:
         parsed = urlparse(url)
         if parsed.netloc == '':
@@ -115,11 +104,9 @@ class GCSSiteHarvester:
         base_domain = self.domain.replace('www.', '')
         target_domain = parsed.netloc.replace('www.', '')
         return base_domain == target_domain
-
     def clean_url(self, url: str) -> str:
         full_url = urljoin(self.base_url, url)
         return full_url.split("#")[0].rstrip("/")
-
     def extract_links_and_contacts(self, html: str, source_url: str):
         if not html: return
         soup = BeautifulSoup(html, 'html.parser')
@@ -136,7 +123,6 @@ class GCSSiteHarvester:
                 phone = href.replace('tel:', '').split('?')[0]
                 if phone: self.contacts["phones"].add(phone)
                 continue
-
             if not href or href.startswith(('#', 'javascript:', 'data:')):
                 continue
                 
@@ -148,7 +134,6 @@ class GCSSiteHarvester:
             else:
                 if full_url.startswith('http'):
                     self.external_links.add(full_url)
-
     def harvest_socials_from_externals(self):
         social_patterns = [
             r'linkedin\.com', r'facebook\.com', r'twitter\.com', 
@@ -157,7 +142,6 @@ class GCSSiteHarvester:
         for url in list(self.external_links):
             if any(re.search(pattern, url, re.I) for pattern in social_patterns):
                 self.contacts["socials"].add(url)
-
     def fetch_and_save_page(self, url: str):
         try:
             downloaded = trafilatura.fetch_url(url)
@@ -173,8 +157,11 @@ class GCSSiteHarvester:
                     blob = self.bucket.blob(blob_path)
                     blob.upload_from_string(content, content_type="text/markdown")
         except Exception as e:
-            logger.error(f"Failed to harvest page {url}: {e}")
-
+            error_str = str(e)
+            if "Provided scope(s) are not authorized" in error_str:
+                logger.error(f"GCS SCOPE ERROR: {url}. The VM's Access Scopes likely block writing. Stop VM -> Edit -> Access Scopes -> Allow credentials to write to Storage (or 'Allow full access').")
+            else:
+                logger.error(f"Failed to harvest page {url}: {e}")
     def run(self, max_internal_pages: int = 5):
         # 1. Fetch Homepage
         try:
@@ -188,9 +175,14 @@ class GCSSiteHarvester:
             raw_blob.upload_from_string(html, content_type="text/html")
             
         except Exception as e:
+            error_str = str(e)
+            if "Provided scope(s) are not authorized" in error_str:
+                logger.error(f"GCS SCOPE ERROR: {self.base_url}. The VM's Access Scopes deny write access. Please enable 'Allow full access to all Cloud APIs' on the VM instance.")
+                # If scope is wrong, no point continuing for this record
+                raise e 
+            
             logger.error(f"Error fetching homepage {self.base_url}: {e}")
             return
-
         # 2. Initial Extraction
         self.extract_links_and_contacts(html, self.base_url)
         self.harvest_socials_from_externals()
@@ -219,22 +211,23 @@ class GCSSiteHarvester:
         
         # 5. Save Results
         self.save_results()
-
     def save_results(self):
-        # Contacts
-        contacts_data = {
-            "emails": sorted(list(self.contacts["emails"])),
-            "phones": sorted(list(self.contacts["phones"])),
-            "socials": sorted(list(self.contacts["socials"]))
-        }
-        
-        contacts_blob = self.bucket.blob(f"{self.prefix}contacts.json")
-        contacts_blob.upload_from_string(
-            json.dumps(contacts_data, indent=2), 
-            content_type="application/json"
-        )
-
-        # External Links
-        external_content = "\n".join(sorted(self.external_links))
-        ext_blob = self.bucket.blob(f"{self.prefix}external.txt")
-        ext_blob.upload_from_string(external_content, content_type="text/plain")
+        try:
+            # Contacts
+            contacts_data = {
+                "emails": sorted(list(self.contacts["emails"])),
+                "phones": sorted(list(self.contacts["phones"])),
+                "socials": sorted(list(self.contacts["socials"]))
+            }
+            
+            contacts_blob = self.bucket.blob(f"{self.prefix}contacts.json")
+            contacts_blob.upload_from_string(
+                json.dumps(contacts_data, indent=2), 
+                content_type="application/json"
+            )
+            # External Links
+            external_content = "\n".join(sorted(self.external_links))
+            ext_blob = self.bucket.blob(f"{self.prefix}external.txt")
+            ext_blob.upload_from_string(external_content, content_type="text/plain")
+        except Exception as e:
+             logger.error(f"Failed to save results for {self.company_id}: {e}")
