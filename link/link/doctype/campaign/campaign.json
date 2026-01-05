@@ -1,0 +1,92 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:(campaign_name)",
+ "creation": "2026-01-05 23:43:25.224031",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "campaign_name",
+  "status",
+  "target_industry",
+  "target_province",
+  "target_business_size",
+  "target_business_type",
+  "limit"
+ ],
+ "fields": [
+  {
+   "fieldname": "campaign_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Campaign Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nSegmented\nGenerated\nLive\nCompleted"
+  },
+  {
+   "fieldname": "target_industry",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Target Industry",
+   "options": "Market Segment",
+   "reqd": 1
+  },
+  {
+   "fieldname": "target_province",
+   "fieldtype": "Link",
+   "label": "Target Province",
+   "options": "Province"
+  },
+  {
+   "fieldname": "target_business_size",
+   "fieldtype": "Link",
+   "label": "Target Business Size",
+   "options": "Company Size"
+  },
+  {
+   "fieldname": "target_business_type",
+   "fieldtype": "Link",
+   "label": "Target Business Type",
+   "options": "Organization Type"
+  },
+  {
+   "description": "Number of records to return",
+   "fieldname": "limit",
+   "fieldtype": "Int",
+   "label": "Limit"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-01-05 23:57:36.962891",
+ "modified_by": "Administrator",
+ "module": "Link",
+ "name": "Campaign",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
