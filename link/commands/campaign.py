@@ -2,9 +2,18 @@ import click
 import frappe
 
 @click.command("create-campaign-items")
+@click.pass_context
 @click.option("--campaign", required=True, help="Name of the Campaign")
-def create_campaign_items(campaign):
+def create_campaign_items(ctx, campaign):
+    # Initialize Frappe site context
+    if hasattr(ctx.obj, 'sites'):
+        site = ctx.obj.sites[0]
+    else:
+        site = ctx.obj['sites'][0]
+        
+    frappe.init(site=site)
     frappe.connect()
+    
     try:
         if not frappe.db.exists("Campaign", campaign):
             print(f"Campaign '{campaign}' not found.")
@@ -41,7 +50,6 @@ def create_campaign_items(campaign):
                 "profile": prof.name
             })
             if exists:
-                # print(f"Skipping {prof.name}, already in campaign.")
                 continue
 
             item = frappe.get_doc({
@@ -49,17 +57,13 @@ def create_campaign_items(campaign):
                 "campaign": campaign,
                 "profile": prof.name,
                 "status": "Pending",
-                "enrichment_data": frappe.as_json({}) # Placeholder for now
+                "enrichment_data": frappe.as_json({}) 
             })
             item.insert()
-            frappe.db.commit() # Commit each or batch? Batch is better but commit each is safer for long run/integrity if fail. 
-            # Actually, standard scripts commit at end or let framework handle. 
-            # But inside loop if we want to stream progress, commit is good. 
-            # I will commit every 10 or at end. for safety/speed. 
-            # Let's commit at the end to be standard.
             
             count += 1
             if count % 10 == 0:
+                frappe.db.commit()
                 print(f"Created {count} items...")
         
         frappe.db.commit()
