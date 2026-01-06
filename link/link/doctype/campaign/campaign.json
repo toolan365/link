@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:(campaign_name)",
+ "autoname": "format:{campaign_name}",
  "creation": "2026-01-05 23:43:25.224031",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -64,7 +64,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-05 23:57:36.962891",
+ "modified": "2026-01-06 13:00:25.013392",
  "modified_by": "Administrator",
  "module": "Link",
  "name": "Campaign",
