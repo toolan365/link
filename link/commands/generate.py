@@ -66,7 +66,7 @@ def process_item(item_name, profile_name, client):
         profile = frappe.get_doc("Profile", profile_name)
         
         # Step 1: The Headhunter
-        target = find_decision_maker(profile.name)
+        target = find_decision_maker(profile.name, client)
         
         if not target:
             frappe.db.set_value("Campaign Item", item_name, "status", "Data Missing")
@@ -79,6 +79,11 @@ def process_item(item_name, profile_name, client):
         # Step 3: The Copywriter
         content = generate_copy(client, target, profile)
         
+        if not content:
+             frappe.db.set_value("Campaign Item", item_name, "status", "Generation Failed")
+             print(f"Skipping {profile.company_name}: Content generation failed.")
+             return
+
         # Step 4: Save
         enrichment_data = {
             "email_guesses": email_guesses,
@@ -98,10 +103,8 @@ def process_item(item_name, profile_name, client):
         print(f"Error processing {profile_name}: {e}")
         frappe.log_error(f"Generate Content Error: {e}")
 
-def find_decision_maker(profile_id):
-    # Priority order
-    titles = ["Founder", "Owner", "Partner", "CEO", "Chief Executive Officer", "Managing Director", "Marketing Manager"]
-    
+def find_decision_maker(profile_id, client):
+    # Fetch all employees
     employees = frappe.get_all("Company Employee", 
         filters={"company_profile__id": profile_id},
         fields=["employee_name", "employee_title"]
@@ -110,15 +113,52 @@ def find_decision_maker(profile_id):
     if not employees:
         return None
 
-    # Simple priority match
-    for title_keyword in titles:
-        for emp in employees:
-            if not emp.employee_title:
-                continue
-            if title_keyword.lower() in emp.employee_title.lower():
-                return {"name": emp.employee_name, "title": emp.employee_title}
-                
-    return None
+    # Format employee list for the prompt
+    employee_list_text = "\n".join([f"- {emp.employee_name} ({emp.employee_title})" for emp in employees if emp.employee_name])
+    
+    prompt = f"""
+    You are an expert targeted outreach specialist.
+    I need to find the best person to contact at this company for a sales pitch about automated lead generation services.
+    
+    Here is the list of employees:
+    {employee_list_text}
+    
+    Rules:
+    1. Prioritize roles like Founder, CEO, Owner, Managing Director, Sales Director, Marketing Director.
+    2. If no perfect match, find the most senior person likely to handle growth or sales.
+    3. Return valid JSON only with keys: "name", "title".
+    4. If absolutely no suitable person is found in the list, return null.
+    """
+
+    try:
+        from google.genai import types
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type='application/json'
+            )
+        )
+        
+        result = json.loads(response.text)
+        
+        # Handle list vs dict return
+        if isinstance(result, list):
+             if len(result) > 0:
+                 result = result[0]
+             else:
+                 return None
+                 
+        if not result or not isinstance(result, dict):
+            return None
+            
+        return {"name": result.get("name"), "title": result.get("title")}
+
+    except Exception as e:
+        print(f"Error in decision maker selection: {e}")
+        # Fallback to first employee or None if critical failure, 
+        # but let's just return None to be safe so we don't spam randoms.
+        return None
 
 def generate_email_guesses(name, website):
     if not website or not name:
@@ -167,7 +207,20 @@ def generate_copy(client, target, profile):
                 response_mime_type='application/json'
             )
         )
-        return json.loads(response.text)
+        data = json.loads(response.text)
+        
+        # Fix for 'list' object has no attribute 'get'
+        if isinstance(data, list):
+            if len(data) > 0:
+                data = data[0]
+            else:
+                return {"subject": "Generation Error", "body": "Empty list returned from AI"}
+                
+        if not isinstance(data, dict):
+             return {"subject": "Generation Error", "body": f"Invalid format returned: {type(data)}"}
+             
+        return data
+        
     except Exception as e:
         print(f"Gemini Error: {e}")
         return {"subject": "Error generating content", "body": str(e)}
