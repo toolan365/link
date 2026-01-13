@@ -52,7 +52,7 @@ def enrichment_logic():
         AND (
             web_enriched = 0 
             OR web_enriched IS NULL 
-            OR web_enriched_date < DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+            OR web_enriched_date < DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
         )
     """, as_dict=True)
     click.echo(f"Found {len(profiles)} profiles to enrich.")
